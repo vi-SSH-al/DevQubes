@@ -40,7 +40,6 @@ export const POST = async (request: Request) => {
     // Add the AI's response to the conversation history
     history.push(`AI: ${reply}`);
 
-    // Update the conversation history for the user
     conversationHistory[userId] = history;
 
     console.log("after history:", history);

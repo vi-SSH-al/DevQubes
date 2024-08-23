@@ -1,5 +1,4 @@
 "use client";
-
 import { downvoteAnswer, upvoteAnswer } from "@/lib/actions/answer.action";
 import { viewQuestion } from "@/lib/actions/interaction.action";
 import {
@@ -10,7 +9,9 @@ import { toggleSaveQuestion } from "@/lib/actions/user.action";
 import { formatAndDivideNumber } from "@/lib/utils";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+
+import React, { useEffect } from "react";
+import { toast } from "../ui/use-toast";
 
 interface Props {
   type: string;
@@ -33,20 +34,32 @@ const Votes = ({
   hasdownVoted,
   hasSaved,
 }: Props) => {
-  const pathname = usePathname();
-  const router = useRouter();
+  // TODO : add voting functionality
 
-  const handleSave = async () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  useEffect(() => {
+    viewQuestion({
+      questionId: JSON.parse(itemId),
+      userId: userId ? JSON.parse(userId) : undefined,
+    });
+  }, [itemId, userId, pathname, router]);
+
+  // const router = useRouter();
+
+  const handleSave = async (action: string) => {
     await toggleSaveQuestion({
       userId: JSON.parse(userId),
       questionId: JSON.parse(itemId),
       path: pathname,
     });
   };
-
   const handleVote = async (action: string) => {
     if (!userId) {
-      return;
+      return toast({
+        title: "You need to login to vote",
+        description: "You need to Login to to perform this action",
+      });
     }
 
     if (action === "upvote") {
@@ -69,7 +82,10 @@ const Votes = ({
       }
 
       // todo: show a toast
-      return;
+      return toast({
+        title: `Upvote ${!hasupVoted ? "SuccessFully" : "Removed  "}   `,
+        variant: !hasupVoted ? "default" : "destructive",
+      });
     }
 
     if (action === "downvote") {
@@ -92,20 +108,17 @@ const Votes = ({
       }
 
       // todo: show a toast
+      return toast({
+        title: `downvote ${!hasdownVoted ? "SuccessFully" : "Removed  "}   `,
+        variant: !hasdownVoted ? "default" : "destructive",
+      });
     }
   };
-
-  useEffect(() => {
-    viewQuestion({
-      questionId: JSON.parse(itemId),
-      userId: userId ? JSON.parse(userId) : undefined,
-    });
-  }, [itemId, userId, pathname, router]);
 
   return (
     <div className="flex gap-5">
       <div className="flex-center gap-2.5">
-        <div className="flex-center gap-1.5">
+        <div className="flex-center  gap-1.5">
           <Image
             src={
               hasupVoted
@@ -118,15 +131,13 @@ const Votes = ({
             className="cursor-pointer"
             onClick={() => handleVote("upvote")}
           />
-
           <div className="flex-center background-light700_dark400 min-w-[18px] rounded-sm p-1">
             <p className="subtle-medium text-dark400_light900">
               {formatAndDivideNumber(upvotes)}
             </p>
           </div>
         </div>
-
-        <div className="flex-center gap-1.5">
+        <div className="flex-center  gap-1.5">
           <Image
             src={
               hasdownVoted
@@ -139,7 +150,6 @@ const Votes = ({
             className="cursor-pointer"
             onClick={() => handleVote("downvote")}
           />
-
           <div className="flex-center background-light700_dark400 min-w-[18px] rounded-sm p-1">
             <p className="subtle-medium text-dark400_light900">
               {formatAndDivideNumber(downvotes)}
@@ -155,10 +165,11 @@ const Votes = ({
               ? "/assets/icons/star-filled.svg"
               : "/assets/icons/star-red.svg"
           }
+          alt="star"
           width={18}
           height={18}
-          alt="star"
           className="cursor-pointer"
+          // @ts-ignore
           onClick={handleSave}
         />
       )}

@@ -21,7 +21,6 @@ import Image from "next/image";
 import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
-import { ITag } from "@/database/tag.model";
 
 interface Props {
   type?: string;
@@ -36,18 +35,23 @@ const Question = ({ type, mongoUserId, questionDetails }: Props) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const parsedQuestionDetails =
-    questionDetails && JSON.parse(questionDetails || "");
+  const parsedQuestionDetails = questionDetails
+    ? JSON.parse(questionDetails)
+    : "";
 
-  const groupedTags = parsedQuestionDetails?.tags.map((tag: ITag) => tag.name);
+  const groupedTags = parsedQuestionDetails
+    ? parsedQuestionDetails.tags.map((tag: any) => tag.name)
+    : [];
+
+  console.log(parsedQuestionDetails);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof QuestionsSchema>>({
     resolver: zodResolver(QuestionsSchema),
     defaultValues: {
-      title: parsedQuestionDetails?.title || "",
-      explanation: parsedQuestionDetails?.content || "",
-      tags: groupedTags || [],
+      title: parsedQuestionDetails.title || "",
+      explanation: parsedQuestionDetails.content || "",
+      tags: groupedTags || [] || undefined,
     },
   });
 

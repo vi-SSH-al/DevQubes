@@ -30,7 +30,6 @@ export async function getTopInteractedTags(params: GetTopInteractedTagsParams) {
         return tag;
       });
     });
-
     return allTags;
   } catch (error) {
     console.log(error);

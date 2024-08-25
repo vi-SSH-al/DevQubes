@@ -1,13 +1,16 @@
 /* eslint-disable camelcase */
-import { Webhook } from "svix";
 import { headers } from "next/headers";
-import { WebhookEvent } from "@clerk/nextjs/server";
-import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
 import { NextResponse } from "next/server";
 
+import { WebhookEvent } from "@clerk/nextjs/server";
+import { Webhook } from "svix";
+
+import { createUser, deleteUser, updateUser } from "@/lib/actions/user.action";
+
 export async function POST(req: Request) {
+  // TODO: Add your own Clerk webhook secret here
   // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
-  const WEBHOOK_SECRET = process.env.NEXT_CLERK_WEBHOOK_SECRET;
+  const WEBHOOK_SECRET = process.env.CLERK_WEBHOOK_SECRET;
 
   if (!WEBHOOK_SECRET) {
     throw new Error(
@@ -17,12 +20,12 @@ export async function POST(req: Request) {
 
   // Get the headers
   const headerPayload = headers();
-  const svix_id = headerPayload.get("svix-id");
-  const svix_timestamp = headerPayload.get("svix-timestamp");
-  const svix_signature = headerPayload.get("svix-signature");
+  const svixId = headerPayload.get("svix-id");
+  const svixTimestamp = headerPayload.get("svix-timestamp");
+  const svixSignature = headerPayload.get("svix-signature");
 
   // If there are no headers, error out
-  if (!svix_id || !svix_timestamp || !svix_signature) {
+  if (!svixId || !svixTimestamp || !svixSignature) {
     return new Response("Error occured -- no svix headers", {
       status: 400,
     });
@@ -40,9 +43,9 @@ export async function POST(req: Request) {
   // Verify the payload with the headers
   try {
     evt = wh.verify(body, {
-      "svix-id": svix_id,
-      "svix-timestamp": svix_timestamp,
-      "svix-signature": svix_signature,
+      "svix-id": svixId,
+      "svix-timestamp": svixTimestamp,
+      "svix-signature": svixSignature,
     }) as WebhookEvent;
   } catch (err) {
     console.error("Error verifying webhook:", err);
@@ -51,15 +54,14 @@ export async function POST(req: Request) {
     });
   }
 
+  // Get the ID and type
   const eventType = evt.type;
-
-  console.log({ eventType });
 
   if (eventType === "user.created") {
     const { id, email_addresses, image_url, username, first_name, last_name } =
       evt.data;
 
-    // Create a new user in your database
+    // create a new user in database
     const mongoUser = await createUser({
       clerkId: id,
       name: `${first_name}${last_name ? ` ${last_name}` : ""}`,
@@ -68,14 +70,14 @@ export async function POST(req: Request) {
       picture: image_url,
     });
 
-    return NextResponse.json({ message: "OK", user: mongoUser });
+    return NextResponse.json({ message: "User created", user: mongoUser });
   }
 
   if (eventType === "user.updated") {
     const { id, email_addresses, image_url, username, first_name, last_name } =
       evt.data;
 
-    // Create a new user in your database
+    // create a new user in database
     const mongoUser = await updateUser({
       clerkId: id,
       updateData: {
@@ -87,7 +89,7 @@ export async function POST(req: Request) {
       path: `/profile/${id}`,
     });
 
-    return NextResponse.json({ message: "OK", user: mongoUser });
+    return NextResponse.json({ message: "User updated", user: mongoUser });
   }
 
   if (eventType === "user.deleted") {
@@ -97,8 +99,8 @@ export async function POST(req: Request) {
       clerkId: id!,
     });
 
-    return NextResponse.json({ message: "OK", user: deletedUser });
+    return NextResponse.json({ message: "User deleted", user: deletedUser });
   }
 
-  return new Response("", { status: 201 });
+  return NextResponse.json({ message: "Ok" });
 }

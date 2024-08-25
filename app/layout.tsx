@@ -23,7 +23,7 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-spaceGrotesk",
 });
 export const metadata: Metadata = {
-  title: "Devflow",
+  title: "DevQubes",
   description:
     " A commuinty-driven platform for asking and answering programming questions. Get help, share knowledge, and collaborate with developers from around the world. Explore topic in web development, mobile app development, algorithms, data structures, and more .",
   icons: {

@@ -129,9 +129,9 @@ const Page = async ({ params, searchParams }: URLProps) => {
               clerkId={clerkId}
             />
           </TabsContent>
-          <TabsContent value="Github" className="flex w-full flex-col gap-6">
-            {/* <GithubRepos username={userInfo.user.github} /> */}
-          </TabsContent>
+          {/* <TabsContent value="Github" className="flex w-full flex-col gap-6">
+            <GithubRepos username={userInfo.user.github} />
+          </TabsContent> */}
         </Tabs>
       </div>
     </>

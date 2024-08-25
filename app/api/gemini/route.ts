@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_GIMINI_API_KEY;
+const API_KEY = process.env.GEMINI_API_KEY;
 
 const googleAI = new GoogleGenerativeAI(API_KEY);
 const geminiConfig = {
@@ -35,11 +35,12 @@ export const POST = async (request: Request) => {
       User: ${question}`
     );
     const response = result.response;
+    // const reply = await response.text().replace(/\*/g, "");
     const reply = await response.text();
-
     // Add the AI's response to the conversation history
     history.push(`AI: ${reply}`);
 
+    // Update the conversation history for the user
     conversationHistory[userId] = history;
 
     console.log("after history:", history);

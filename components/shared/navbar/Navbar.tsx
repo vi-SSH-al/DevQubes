@@ -17,7 +17,7 @@ const Navbar = () => {
           alt="DevCrux"
         />
         <p className="h2-bold font-spaceGrotesk text-dark-100 dark:text-light-900 max-sm:hidden">
-          Dev <span className="text-primary-500"> Crux</span>
+          Dev <span className="text-primary-500"> Qubes</span>
         </p>
       </Link>
       <GlobalSearch />

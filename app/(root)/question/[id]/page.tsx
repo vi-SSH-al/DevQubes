@@ -1,19 +1,18 @@
 import Answer from "@/components/forms/Answer";
 import AllAnswers from "@/components/shared/AllAnswers";
-import Metric from "@/components/shared/Metric";
 import ParseHTML from "@/components/shared/ParseHTML";
 import RenderTag from "@/components/shared/RenderTag";
 import Votes from "@/components/shared/Votes";
+import Metric from "@/components/shared/Metric";
 import { getQuestionById } from "@/lib/actions/question.action";
 import { getUserById } from "@/lib/actions/user.action";
 import { formatAndDivideNumber, getTimestamp } from "@/lib/utils";
-import { URLProps } from "@/types";
 import { auth } from "@clerk/nextjs/server";
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 
-const Page = async ({ params, searchParams }: URLProps) => {
+const Page = async ({ params, searchParams }: any) => {
   const { userId: clerkId } = auth();
 
   let mongoUser;
@@ -21,7 +20,6 @@ const Page = async ({ params, searchParams }: URLProps) => {
   if (clerkId) {
     mongoUser = await getUserById({ userId: clerkId });
   }
-
   const result = await getQuestionById({ questionId: params.id });
 
   return (
@@ -52,7 +50,7 @@ const Page = async ({ params, searchParams }: URLProps) => {
               hasupVoted={result.upvotes.includes(mongoUser._id)}
               downvotes={result.downvotes.length}
               hasdownVoted={result.downvotes.includes(mongoUser._id)}
-              hasSaved={mongoUser?.saved.includes(result._id)}
+              hasSaved={mongoUser?.saved?.includes(result._id)}
             />
           </div>
         </div>
@@ -60,7 +58,6 @@ const Page = async ({ params, searchParams }: URLProps) => {
           {result.title}
         </h2>
       </div>
-
       <div className="mb-8 mt-5 flex flex-wrap gap-4">
         <Metric
           imgUrl="/assets/icons/clock.svg"
@@ -102,7 +99,7 @@ const Page = async ({ params, searchParams }: URLProps) => {
         questionId={result._id}
         userId={mongoUser._id}
         totalAnswers={result.answers.length}
-        page={searchParams.page ? +searchParams.page : 1}
+        page={searchParams?.page}
         filter={searchParams?.filter}
       />
 

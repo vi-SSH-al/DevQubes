@@ -27,9 +27,10 @@ export async function getUserById(params: any) {
     const { userId } = params;
 
     const user = await User.findOne({ clerkId: userId });
-
+    console.log("user is ", user);
     return user;
   } catch (error) {
+    console.log("error in action");
     console.log(error);
     throw error;
   }

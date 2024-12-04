@@ -18,6 +18,8 @@ import Image from "next/image";
 import { createAnswer } from "@/lib/actions/answer.action";
 import { usePathname } from "next/navigation";
 import { AnswersSchema } from "@/lib/validation";
+import { toast } from "../ui/use-toast";
+import { AlignStartHorizontal } from "lucide-react";
 
 interface Props {
   question: string;
@@ -31,6 +33,7 @@ const Answer = ({ question, questionId, authorId }: Props) => {
   const [isSubmittingAI, setIsSubmittingAI] = useState(false);
   const { mode } = useTheme();
   const editorRef = useRef(null);
+
   const form = useForm<z.infer<typeof AnswersSchema>>({
     resolver: zodResolver(AnswersSchema),
     defaultValues: {
@@ -40,7 +43,12 @@ const Answer = ({ question, questionId, authorId }: Props) => {
 
   const handleCreateAnswer = async (values: z.infer<typeof AnswersSchema>) => {
     setIsSubmitting(true);
-
+    if (!authorId) {
+      return toast({
+        title: "You need to login to answer the question",
+        description: "You need to Login to to perform this action",
+      });
+    }
     try {
       await createAnswer({
         content: values.answer,
@@ -64,6 +72,12 @@ const Answer = ({ question, questionId, authorId }: Props) => {
   };
 
   const generateAIAnswer = async () => {
+    if (!authorId) {
+      return toast({
+        title: "You need to login to generate AI answers",
+        description: "You need to Login to to perform this action",
+      });
+    }
     if (!authorId) return;
 
     setIsSubmittingAI(true);
